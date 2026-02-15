@@ -88,6 +88,16 @@ Config.Markers = {
 Config.SyncEnabled = true -- Enable/disable marker synchronization between players
 Config.SyncInterval = 1000 -- Sync interval in milliseconds (1000ms = 1 second)
 
+-- Permission Settings
+-- Marker management requires 'admin' or 'god' permission in QBCore
+-- Commands that require permissions:
+-- - /addmarker - Add a marker at current position
+-- - /reloadmarkers - Reload markers from config
+-- Events that require permissions:
+-- - chilllixhub-markers:server:addMarker
+-- - chilllixhub-markers:server:removeMarker
+-- - chilllixhub-markers:server:updateMarker
+
 -- Draw Settings
 Config.DrawDistance = 100.0 -- Distance at which markers are visible
 Config.RefreshRate = 0 -- Refresh rate in milliseconds (0 = every frame)

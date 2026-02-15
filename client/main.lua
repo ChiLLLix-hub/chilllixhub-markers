@@ -4,6 +4,17 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local syncedMarkers = {}
 local markersLoaded = false
 
+-- Helper function to get next available marker ID (for local mode)
+local function GetNextMarkerId()
+    local maxId = 0
+    for id, _ in pairs(syncedMarkers) do
+        if id > maxId then
+            maxId = id
+        end
+    end
+    return maxId + 1
+end
+
 -- Initialize markers on resource start
 CreateThread(function()
     -- Wait for player to be loaded
@@ -132,7 +143,8 @@ RegisterCommand('addmarker', function(source, args)
         TriggerServerEvent('chilllixhub-markers:server:addMarker', newMarker)
         QBCore.Functions.Notify('Marker added at your location', 'success', 5000)
     else
-        local newId = #syncedMarkers + 1
+        local newId = GetNextMarkerId()
+        newMarker.id = newId
         syncedMarkers[newId] = newMarker
         QBCore.Functions.Notify('Marker added locally (sync disabled)', 'primary', 5000)
     end
@@ -149,7 +161,8 @@ exports('AddMarker', function(markerData)
     if Config.SyncEnabled then
         TriggerServerEvent('chilllixhub-markers:server:addMarker', markerData)
     else
-        local newId = #syncedMarkers + 1
+        local newId = GetNextMarkerId()
+        markerData.id = newId
         syncedMarkers[newId] = markerData
     end
 end)

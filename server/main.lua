@@ -2,6 +2,18 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 -- Store active markers
 local activeMarkers = {}
+local nextMarkerId = 1
+
+-- Helper function to get next available marker ID
+local function GetNextMarkerId()
+    local maxId = 0
+    for id, _ in pairs(activeMarkers) do
+        if id > maxId then
+            maxId = id
+        end
+    end
+    return maxId + 1
+end
 
 -- Initialize markers from config
 CreateThread(function()
@@ -23,6 +35,9 @@ CreateThread(function()
                 drawOnEnts = marker.drawOnEnts
             }
         end
+        
+        -- Set next ID to be after config markers
+        nextMarkerId = #Config.Markers + 1
     end
 end)
 
@@ -38,12 +53,18 @@ end)
 -- Event to add a new marker (admin/authorized use)
 RegisterNetEvent('chilllixhub-markers:server:addMarker', function(markerData)
     local src = source
-    -- Add QBCore permission check if needed
-    -- local Player = QBCore.Functions.GetPlayer(src)
-    -- if not Player then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+    
+    if not Player then return end
+    
+    -- Check if player has admin permission
+    if not (QBCore.Functions.HasPermission(src, 'admin') or QBCore.Functions.HasPermission(src, 'god')) then
+        TriggerClientEvent('QBCore:Notify', src, 'You do not have permission to add markers', 'error')
+        return
+    end
     
     if Config.SyncEnabled then
-        local newId = #activeMarkers + 1
+        local newId = GetNextMarkerId()
         markerData.id = newId
         activeMarkers[newId] = markerData
         
@@ -57,9 +78,15 @@ end)
 -- Event to remove a marker (admin/authorized use)
 RegisterNetEvent('chilllixhub-markers:server:removeMarker', function(markerId)
     local src = source
-    -- Add QBCore permission check if needed
-    -- local Player = QBCore.Functions.GetPlayer(src)
-    -- if not Player then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+    
+    if not Player then return end
+    
+    -- Check if player has admin permission
+    if not (QBCore.Functions.HasPermission(src, 'admin') or QBCore.Functions.HasPermission(src, 'god')) then
+        TriggerClientEvent('QBCore:Notify', src, 'You do not have permission to remove markers', 'error')
+        return
+    end
     
     if Config.SyncEnabled and activeMarkers[markerId] then
         activeMarkers[markerId] = nil
@@ -74,9 +101,15 @@ end)
 -- Event to update a marker (admin/authorized use)
 RegisterNetEvent('chilllixhub-markers:server:updateMarker', function(markerId, markerData)
     local src = source
-    -- Add QBCore permission check if needed
-    -- local Player = QBCore.Functions.GetPlayer(src)
-    -- if not Player then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+    
+    if not Player then return end
+    
+    -- Check if player has admin permission
+    if not (QBCore.Functions.HasPermission(src, 'admin') or QBCore.Functions.HasPermission(src, 'god')) then
+        TriggerClientEvent('QBCore:Notify', src, 'You do not have permission to update markers', 'error')
+        return
+    end
     
     if Config.SyncEnabled and activeMarkers[markerId] then
         markerData.id = markerId
@@ -90,6 +123,7 @@ RegisterNetEvent('chilllixhub-markers:server:updateMarker', function(markerId, m
 end)
 
 -- Command to reload markers from config (admin only)
+-- WARNING: This reloads markers from config and will remove any dynamically added markers
 QBCore.Commands.Add('reloadmarkers', 'Reload markers from config (Admin Only)', {}, false, function(source)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
@@ -116,9 +150,12 @@ QBCore.Commands.Add('reloadmarkers', 'Reload markers from config (Admin Only)', 
             }
         end
         
+        -- Reset next ID counter
+        nextMarkerId = #Config.Markers + 1
+        
         -- Sync to all clients
         TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', -1, activeMarkers)
-        TriggerClientEvent('QBCore:Notify', src, 'Markers reloaded successfully!', 'success')
+        TriggerClientEvent('QBCore:Notify', src, 'Markers reloaded from config. Dynamic markers removed.', 'success')
         
         print('^2[ChilllixHub-Markers]^7 Markers reloaded by admin ' .. src)
     else
