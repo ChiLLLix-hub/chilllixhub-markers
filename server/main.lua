@@ -15,6 +15,26 @@ local function GetNextMarkerId()
     return maxId + 1
 end
 
+-- Helper function to filter markers based on player's job
+local function FilterMarkersForJob(markers, jobName)
+    local filteredMarkers = {}
+    local count = 0
+    
+    for id, marker in pairs(markers) do
+        if not marker.job or marker.job == false then
+            -- Marker is visible to all players
+            filteredMarkers[id] = marker
+            count = count + 1
+        elseif marker.job == true and marker.jobname and marker.jobname == jobName then
+            -- Marker is visible only to specific job and player has that job
+            filteredMarkers[id] = marker
+            count = count + 1
+        end
+    end
+    
+    return filteredMarkers, count
+end
+
 -- Initialize markers from config
 CreateThread(function()
     if Config.SyncEnabled then
@@ -51,20 +71,9 @@ RegisterNetEvent('chilllixhub-markers:server:requestMarkers', function()
         if not Player then return end
         
         local playerJob = Player.PlayerData.job.name
-        local filteredMarkers = {}
+        local filteredMarkers, count = FilterMarkersForJob(activeMarkers, playerJob)
         
-        -- Filter markers based on player's job
-        for id, marker in pairs(activeMarkers) do
-            if not marker.job or marker.job == false then
-                -- Marker is visible to all players
-                filteredMarkers[id] = marker
-            elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-                -- Marker is visible only to specific job and player has that job
-                filteredMarkers[id] = marker
-            end
-        end
-        
-        print('^2[ChilllixHub-Markers]^7 Syncing ' .. #filteredMarkers .. ' markers to player ' .. src .. ' (job: ' .. playerJob .. ')')
+        print('^2[ChilllixHub-Markers]^7 Syncing ' .. count .. ' markers to player ' .. src .. ' (job: ' .. playerJob .. ')')
         TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', src, filteredMarkers)
     end
 end)
@@ -95,16 +104,7 @@ RegisterNetEvent('chilllixhub-markers:server:addMarker', function(markerData)
         local Players = QBCore.Functions.GetQBPlayers()
         for k, v in pairs(Players) do
             local playerJob = v.PlayerData.job.name
-            local filteredMarkers = {}
-            
-            for id, marker in pairs(activeMarkers) do
-                if not marker.job or marker.job == false then
-                    filteredMarkers[id] = marker
-                elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-                    filteredMarkers[id] = marker
-                end
-            end
-            
+            local filteredMarkers = FilterMarkersForJob(activeMarkers, playerJob)
             TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', v.PlayerData.source, filteredMarkers)
         end
     end
@@ -132,16 +132,7 @@ RegisterNetEvent('chilllixhub-markers:server:removeMarker', function(markerId)
         local Players = QBCore.Functions.GetQBPlayers()
         for k, v in pairs(Players) do
             local playerJob = v.PlayerData.job.name
-            local filteredMarkers = {}
-            
-            for id, marker in pairs(activeMarkers) do
-                if not marker.job or marker.job == false then
-                    filteredMarkers[id] = marker
-                elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-                    filteredMarkers[id] = marker
-                end
-            end
-            
+            local filteredMarkers = FilterMarkersForJob(activeMarkers, playerJob)
             TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', v.PlayerData.source, filteredMarkers)
         end
     end
@@ -172,16 +163,7 @@ RegisterNetEvent('chilllixhub-markers:server:updateMarker', function(markerId, m
         local Players = QBCore.Functions.GetQBPlayers()
         for k, v in pairs(Players) do
             local playerJob = v.PlayerData.job.name
-            local filteredMarkers = {}
-            
-            for id, marker in pairs(activeMarkers) do
-                if not marker.job or marker.job == false then
-                    filteredMarkers[id] = marker
-                elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-                    filteredMarkers[id] = marker
-                end
-            end
-            
+            local filteredMarkers = FilterMarkersForJob(activeMarkers, playerJob)
             TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', v.PlayerData.source, filteredMarkers)
         end
     end
@@ -224,16 +206,7 @@ QBCore.Commands.Add('reloadmarkers', 'Reload markers from config (Admin Only)', 
         local Players = QBCore.Functions.GetQBPlayers()
         for k, v in pairs(Players) do
             local playerJob = v.PlayerData.job.name
-            local filteredMarkers = {}
-            
-            for id, marker in pairs(activeMarkers) do
-                if not marker.job or marker.job == false then
-                    filteredMarkers[id] = marker
-                elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-                    filteredMarkers[id] = marker
-                end
-            end
-            
+            local filteredMarkers = FilterMarkersForJob(activeMarkers, playerJob)
             TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', v.PlayerData.source, filteredMarkers)
         end
         
@@ -253,16 +226,7 @@ RegisterNetEvent('QBCore:Server:OnJobUpdate', function(source)
     if not Player or not Config.SyncEnabled then return end
     
     local playerJob = Player.PlayerData.job.name
-    local filteredMarkers = {}
-    
-    -- Filter markers based on player's new job
-    for id, marker in pairs(activeMarkers) do
-        if not marker.job or marker.job == false then
-            filteredMarkers[id] = marker
-        elseif marker.job == true and marker.jobname and marker.jobname == playerJob then
-            filteredMarkers[id] = marker
-        end
-    end
+    local filteredMarkers = FilterMarkersForJob(activeMarkers, playerJob)
     
     print('^2[ChilllixHub-Markers]^7 Job changed for player ' .. src .. ', syncing markers for new job: ' .. playerJob)
     TriggerClientEvent('chilllixhub-markers:client:receiveMarkers', src, filteredMarkers)

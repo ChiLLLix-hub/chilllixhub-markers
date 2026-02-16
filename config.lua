@@ -75,7 +75,7 @@ Config.Markers = {
         jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     {
-        name = "Example Marker 3 - Police Only",
+        name = "Example Marker 3",
         type = 28, -- MarkerTypeHorizontalCircleSkinny_Arrow
         coords = vector3(20.0, 20.0, 30.0),
         scale = vector3(1.0, 1.0, 1.0),
