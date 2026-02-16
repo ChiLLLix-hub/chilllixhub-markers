@@ -123,6 +123,8 @@ RegisterCommand('addmarker', function(source, args)
     local g = tonumber(args[3]) or 0
     local b = tonumber(args[4]) or 0
     local a = tonumber(args[5]) or 200
+    local jobRestricted = args[6] and args[6] == "true" or false
+    local jobName = args[7] or nil
     
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
@@ -136,12 +138,18 @@ RegisterCommand('addmarker', function(source, args)
         bobUpAndDown = false,
         faceCamera = false,
         rotate = false,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = jobRestricted,
+        jobname = jobName
     }
     
     if Config.SyncEnabled then
         TriggerServerEvent('chilllixhub-markers:server:addMarker', newMarker)
-        QBCore.Functions.Notify('Marker added at your location', 'success', 5000)
+        if jobRestricted and jobName then
+            QBCore.Functions.Notify('Marker added for job: ' .. jobName, 'success', 5000)
+        else
+            QBCore.Functions.Notify('Marker added at your location', 'success', 5000)
+        end
     else
         local newId = GetNextMarkerId()
         newMarker.id = newId

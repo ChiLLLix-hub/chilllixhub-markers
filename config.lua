@@ -57,7 +57,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- If true, marker is visible only to specific job
+        jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     {
         name = "Example Marker 2",
@@ -68,10 +70,12 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = false,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- If true, marker is visible only to specific job
+        jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     {
-        name = "Example Marker 3",
+        name = "Example Marker 3 - Police Only",
         type = 28, -- MarkerTypeHorizontalCircleSkinny_Arrow
         coords = vector3(20.0, 20.0, 30.0),
         scale = vector3(1.0, 1.0, 1.0),
@@ -79,7 +83,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = true, -- If true, marker is visible only to specific job
+        jobname = "police" -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     -- Add more markers as needed
 }
