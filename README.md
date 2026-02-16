@@ -11,6 +11,7 @@ A FiveM script with QBCore framework for placing configurable markers in the wor
   - MarkerTypeHorizontalCircleSkinny_Arrow
   - And many more (43 different marker types)
 - ✅ Real-time synchronization between all players on the server
+- ✅ Job-based visibility control (show markers only to specific jobs)
 - ✅ QBCore framework integration
 - ✅ Admin commands for managing markers
 - ✅ Export functions for other resources
@@ -40,7 +41,22 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- If true, marker is visible only to specific job
+        jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
+    },
+    {
+        name = "Police Only Marker",
+        type = 25,
+        coords = vector3(10.0, 10.0, 30.0),
+        scale = vector3(2.0, 2.0, 1.0),
+        color = {r = 0, g = 100, b = 255, a = 200}, -- Blue for police
+        bobUpAndDown = false,
+        faceCamera = false,
+        rotate = false,
+        drawOnEnts = false,
+        job = true, -- Marker visible only to specific job
+        jobname = "police" -- Only police can see this marker
     },
     -- Add more markers here
 }
@@ -64,13 +80,40 @@ See `config.lua` for a complete list of all 43 marker types.
 - **Config.DrawDistance**: Distance at which markers are visible (default: 100.0)
 - **Config.RefreshRate**: Refresh rate in milliseconds (default: 0 = every frame)
 
+### Job Visibility Options
+
+Each marker can have the following job visibility settings:
+
+- **job**: Boolean (true/false)
+  - `false` - Marker is visible to all players (default)
+  - `true` - Marker is visible only to players with the specified job
+- **jobname**: String (job name)
+  - Name of the job that can see the marker (e.g., "police", "ambulance", "mechanic")
+  - Only used when `job = true`
+
+Example:
+```lua
+-- Public marker (visible to everyone)
+job = false,
+jobname = nil
+
+-- Police-only marker
+job = true,
+jobname = "police"
+
+-- Ambulance-only marker
+job = true,
+jobname = "ambulance"
+```
+
 ## Commands
 
 ### Player Commands
 
 - `/markerinfo` - Display information about active markers
-- `/addmarker [type] [r] [g] [b] [a]` - Add a marker at your current position
-  - Example: `/addmarker 1 255 0 0 200` (adds a red upside-down cone)
+- `/addmarker [type] [r] [g] [b] [a] [job] [jobname]` - Add a marker at your current position
+  - Example: `/addmarker 1 255 0 0 200` (adds a red upside-down cone visible to all)
+  - Example: `/addmarker 1 0 0 255 200 true police` (adds a blue marker visible only to police)
 
 ### Admin Commands
 
@@ -94,7 +137,24 @@ exports['chilllixhub-markers']:AddMarker({
     bobUpAndDown = false,
     faceCamera = false,
     rotate = true,
-    drawOnEnts = false
+    drawOnEnts = false,
+    job = false, -- Visible to all players
+    jobname = nil
+})
+
+-- Add a job-restricted marker
+exports['chilllixhub-markers']:AddMarker({
+    name = "Police Evidence Marker",
+    type = 1,
+    coords = vector3(0.0, 0.0, 0.0),
+    scale = vector3(1.5, 1.5, 1.0),
+    color = {r = 0, g = 0, b = 255, a = 200},
+    bobUpAndDown = false,
+    faceCamera = false,
+    rotate = true,
+    drawOnEnts = false,
+    job = true, -- Visible only to specific job
+    jobname = "police" -- Only police can see this
 })
 
 -- Remove a marker by ID

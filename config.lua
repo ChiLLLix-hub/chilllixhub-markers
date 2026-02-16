@@ -57,7 +57,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- If true, marker is visible only to specific job
+        jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     {
         name = "Example Marker 2",
@@ -68,7 +70,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = false,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- If true, marker is visible only to specific job
+        jobname = nil -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     {
         name = "Example Marker 3",
@@ -79,7 +83,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = true, -- If true, marker is visible only to specific job
+        jobname = "police" -- Job name (e.g., "police", "ambulance", "mechanic")
     },
     -- Add more markers as needed
 }
