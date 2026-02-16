@@ -17,7 +17,9 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- Public marker
+        jobname = nil
     },
     {
         name = "Hospital",
@@ -28,18 +30,22 @@ Config.Markers = {
         bobUpAndDown = false,
         faceCamera = false,
         rotate = false,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = false, -- Public marker
+        jobname = nil
     },
     {
-        name = "Gas Station",
+        name = "Police Evidence Locker",
         type = 28, -- MarkerTypeHorizontalCircleSkinny_Arrow
-        coords = vector3(49.4, 2778.7, 58.0), -- Sandy Shores Gas Station
+        coords = vector3(49.4, 2778.7, 58.0), -- Example location
         scale = vector3(1.5, 1.5, 1.0),
-        color = {r = 0, g = 255, b = 0, a = 200}, -- Green
+        color = {r = 0, g = 0, b = 255, a = 200}, -- Blue
         bobUpAndDown = false,
         faceCamera = false,
         rotate = true,
-        drawOnEnts = false
+        drawOnEnts = false,
+        job = true, -- Job-restricted marker
+        jobname = "police" -- Only visible to police
     }
 }
 ```
@@ -51,9 +57,10 @@ Config.Markers = {
 
 Examples:
 ```
-/addmarker 1 255 0 0 200          # Red upside-down cone
-/addmarker 25 0 255 0 200         # Green horizontal circle (fat)
-/addmarker 28 0 0 255 200         # Blue horizontal circle with arrow
+/addmarker 1 255 0 0 200              # Red upside-down cone (visible to all)
+/addmarker 25 0 255 0 200             # Green horizontal circle (visible to all)
+/addmarker 28 0 0 255 200 true police # Blue marker (visible only to police)
+/addmarker 1 255 0 0 200 true ambulance # Red marker (visible only to ambulance)
 ```
 
 ### Adding Markers via Export (From Another Script)
@@ -69,7 +76,9 @@ exports['chilllixhub-markers']:AddMarker({
     bobUpAndDown = false,
     faceCamera = false,
     rotate = true,
-    drawOnEnts = false
+    drawOnEnts = false,
+    job = false, -- Visible to all
+    jobname = nil
 })
 ```
 
@@ -201,6 +210,63 @@ CreateThread(function()
     end
 end)
 ```
+
+### Job-Restricted Markers (Built-in)
+
+The script now has built-in support for job-restricted markers. Simply configure markers with `job = true` and `jobname`:
+
+```lua
+-- Police-only marker
+{
+    name = "Police Evidence Locker",
+    type = 1,
+    coords = vector3(450.0, -985.0, 30.7),
+    scale = vector3(1.5, 1.5, 1.0),
+    color = {r = 0, g = 0, b = 255, a = 200}, -- Blue
+    bobUpAndDown = false,
+    faceCamera = false,
+    rotate = false,
+    drawOnEnts = false,
+    job = true,
+    jobname = "police"
+}
+
+-- Ambulance-only marker
+{
+    name = "Emergency Medical Supplies",
+    type = 1,
+    coords = vector3(300.0, -590.0, 43.2),
+    scale = vector3(1.5, 1.5, 1.0),
+    color = {r = 255, g = 0, b = 0, a = 200}, -- Red
+    bobUpAndDown = false,
+    faceCamera = false,
+    rotate = false,
+    drawOnEnts = false,
+    job = true,
+    jobname = "ambulance"
+}
+
+-- Public marker (visible to all)
+{
+    name = "Public ATM",
+    type = 1,
+    coords = vector3(150.0, -1040.0, 29.4),
+    scale = vector3(1.0, 1.0, 1.0),
+    color = {r = 0, g = 255, b = 0, a = 200}, -- Green
+    bobUpAndDown = false,
+    faceCamera = false,
+    rotate = false,
+    drawOnEnts = false,
+    job = false, -- Public marker
+    jobname = nil
+}
+```
+
+Key features of job-restricted markers:
+- Markers automatically update when a player changes jobs
+- Server-side filtering ensures clients only receive markers they should see
+- No performance impact - only relevant markers are sent to each client
+- Compatible with all QBCore job systems
 
 ### Temporary Markers
 
